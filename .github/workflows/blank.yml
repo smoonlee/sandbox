@@ -21,6 +21,7 @@ jobs:
         client-id: ${{ secrets.AZURE_CLIENT_ID }}
         client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
         tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION }}
 
     # Step 4: Deploy Bicep file at Tenant level
     - name: Deploy Bicep template at Tenant level
