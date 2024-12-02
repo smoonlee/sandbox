@@ -5,6 +5,10 @@ on:
     branches:
       - main  # Trigger on push to the main branch
 
+permissions:
+  contents: 'read'
+  id-token: 'write'
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
