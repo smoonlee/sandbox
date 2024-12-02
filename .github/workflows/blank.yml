@@ -23,9 +23,9 @@ jobs:
       # Step 3: Deploy Bicep file at Tenant level
       - name: Deploy Bicep template at Tenant level
         run: |
-          az deployment sub create \
-            --location <Region>
-            --template-file ./main.bicep \
+          az deployment sub create `
+            --location <Region> `
+            --template-file ./main.bicep `
             --parameters ./parameters.bicepparam
 
       # Step 4: Verify deployment (optional)
