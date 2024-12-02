@@ -24,8 +24,9 @@ jobs:
       - name: Deploy Bicep template at Tenant level
         run: |
           az deployment sub create \
+            --location <Region>
             --template-file ./main.bicep \
-            --parameters ./parameters.json
+            --parameters ./parameters.bicepparam
 
       # Step 4: Verify deployment (optional)
       - name: Verify deployment
