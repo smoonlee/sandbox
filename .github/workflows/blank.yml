@@ -10,24 +10,25 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    # Step 1: Checkout the repository
-    - name: Checkout code
-      uses: actions/checkout@v4
+      # Step 1: Checkout the repository
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    # Step 3: Azure login using Service Principal credentials
-    - name: Login to Azure
-    - uses: azure/login@v2
-      with:
-        creds: ${{ secrets.AZURE_CREDENTIALS }}
+      # Step 2: Azure login using Service Principal credentials
+      - name: Login to Azure
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-    # Step 4: Deploy Bicep file at Tenant level
-    - name: Deploy Bicep template at Tenant level
-      run: |
-        az deployment sub create \
-          --template-file ./main.bicep \
-          --parameters ./parameters.json
+      # Step 3: Deploy Bicep file at Tenant level
+      - name: Deploy Bicep template at Tenant level
+        run: |
+          az deployment sub create \
+            --template-file ./main.bicep \
+            --parameters ./parameters.json
 
-    # Step 5: Verify deployment (optional)
-    - name: Verify deployment
-      run: |
-        echo "Deployment completed successfully."
+      # Step 4: Verify deployment (optional)
+      - name: Verify deployment
+        if: always()
+        run: |
+          echo "Deployment completed successfully."
