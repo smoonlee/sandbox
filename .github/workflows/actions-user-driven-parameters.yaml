@@ -31,13 +31,10 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-24.04
-    steps:
-      - name: Placeholder for deployment steps
-        run: echo "Deploying to environment: ${{ github.event.inputs.environment }} with log level: ${{ github.event.inputs.logLevel }}"
 
   print-tag:
     runs-on: ubuntu-latest
-    if: ${{ github.event.inputs.print_tags == 'true' }}
+    if: ${{ inputs.print_tags }}
     steps:
       - name: Print the input tags to STDOUT
-        run: echo "The tags are ${{ github.event.inputs.tags }}"
+        run: echo "The tags are ${{ inputs.tags }}"
