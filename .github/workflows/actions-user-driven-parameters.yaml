@@ -1,0 +1,40 @@
+name: 'GitHub Actions - User Driven Parameters'
+
+on:
+  workflow_dispatch:
+    inputs:
+      logLevel:
+        description: 'Log level'
+        required: true
+        default: 'warning'
+        type: choice
+        options:
+          - info
+          - warning
+          - debug
+          
+      print_tags:
+        description: 'True to print to STDOUT'
+        required: true
+        type: boolean
+        
+      tags:
+        description: 'Test scenario tags'
+        required: true
+        type: string
+        
+      environment:
+        description: 'Environment to run tests against'
+        required: true
+        type: string
+
+jobs:
+  deploy:
+    runs-on: ubuntu-24.04
+
+  print-tag:
+    runs-on: ubuntu-latest
+    if: ${{ inputs.print_tags }}
+    steps:
+      - name: Print the input tags to STDOUT
+        run: echo "The tags are ${{ inputs.tags }}"
