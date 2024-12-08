@@ -1,4 +1,4 @@
-name: User Driven Parameters
+name: 'GitHub Actions - User Driven Parameters'
 
 on:
   workflow_dispatch:
