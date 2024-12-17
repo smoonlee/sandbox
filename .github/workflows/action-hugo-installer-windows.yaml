@@ -1,0 +1,63 @@
+name: Hugo Check and Install (Windows)
+
+on:
+  push:
+    branches:
+    - main
+  workflow_dispatch:
+  # Uncomment the following lines if you want to add pull request triggers
+  # pull_request:
+  #   types: [opened, synchronize, reopened, closed]
+  #   branches:
+  #     - main
+
+jobs:
+  check-and-install:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Check Operating System
+      run: |
+        Write-Host "Operating System: Windows"
+        systeminfo | Select-String -Pattern "OS Name|OS Version"
+
+    - name: Get latest Hugo version
+      id: get_latest_version
+      run: |
+        $latest_version = (Invoke-RestMethod -Uri "https://api.github.com/repos/gohugoio/hugo/releases/latest").tag_name
+        Write-Host "Latest Hugo version is $latest_version"
+        echo "version=$latest_version" >> $env:GITHUB_ENV
+
+    - name: Download Hugo
+      run: |
+        $HUGO_VERSION = $env:version
+        Write-Host "HUGO_VERSION is $HUGO_VERSION"
+
+        # Trim the 'v' character if it exists
+        $trimmed_version = if ($HUGO_VERSION.StartsWith('v')) { $HUGO_VERSION.Substring(1) } else { $HUGO_VERSION }
+        $DOWNLOAD_URL = "https://github.com/gohugoio/hugo/releases/download/$($HUGO_VERSION)/hugo_extended_${trimmed_version}_windows-amd64.zip"
+
+        Write-Host "Downloading Hugo from $DOWNLOAD_URL"
+        Invoke-WebRequest -Uri $DOWNLOAD_URL -OutFile "hugo_extended_${trimmed_version}_windows-amd64.zip"
+
+        Write-Host "Checking Local Directory [$PWD]"
+        Get-ChildItem
+
+
+    - name: Install Hugo
+      run: |
+        $HUGO_VERSION = "${{ env.version }}"
+        $trimmed_version = if ($HUGO_VERSION.StartsWith('v')) { $HUGO_VERSION.Substring(1) } else { $HUGO_VERSION }
+
+        Write-Host "Using Hugo version $HUGO_VERSION"
+        Write-Host "Extracting Hugo for Windows"
+        Expand-Archive -Path "hugo_extended_${trimmed_version}_windows-amd64.zip" -DestinationPath '.' -Force
+        Write-Host "Hugo installed for Windows"
+
+        Move-Item -Path "hugo.exe" -Destination "C:\ProgramData\chocolatey\bin\"
+
+    - name: Check Hugo version
+      run: hugo version
