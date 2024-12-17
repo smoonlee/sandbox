@@ -5,11 +5,6 @@ on:
     branches:
       - main
   workflow_dispatch:
-  # Uncomment the following lines if you want to add pull request triggers
-  # pull_request:
-  #   types: [opened, synchronize, reopened, closed]
-  #   branches:
-  #     - main
 
 jobs: 
   check-and-install:
@@ -33,28 +28,66 @@ jobs:
           
       - name: Download Hugo
         run: |
+          set -e # Exit on any command failure
           HUGO_VERSION="${{ env.version }}"
-          DOWNLOAD_URL="https://github.com/gohugoio/hugo/releases/download/${HUGO_VERSION}/hugo_extended_${HUGO_VERSION#v}_Linux-64bit.tar.gz"
-          
-          echo "Downloading Hugo from $DOWNLOAD_URL"
-          curl -LO "$DOWNLOAD_URL"
-          
-          echo "" # Verbose Spacing
+
+          # Function to decrement patch version
+          decrement_version() {
+              local version="$1"
+              local major_minor="${version%.*}"   # Extract major and minor (e.g., v1.139)
+              local patch="${version##*.}"        # Extract patch number (e.g., 5)
+              local new_patch=$((patch - 1))      # Decrement patch number
+              echo "${major_minor}.${new_patch}"  # Return decremented version
+          }
+
+          while true; do
+              DOWNLOAD_URL="https://github.com/gohugoio/hugo/releases/download/${HUGO_VERSION}/hugo_extended_${HUGO_VERSION#v}_Linux-64bit.tar.gz"
+              echo "Attempting to download Hugo from: $DOWNLOAD_URL"
+              
+              # Check if the URL exists
+              if curl --head --silent --fail "$DOWNLOAD_URL" > /dev/null; then
+                  echo "URL is valid. Proceeding to download Hugo version $HUGO_VERSION."
+                  echo " " # verbose spacing 
+                  
+                  curl -LO "$DOWNLOAD_URL"
+                  break
+              else
+                  echo "hugo_extended_${HUGO_VERSION#v}_Linux-64bit.tar.gz not found. Rolling back to previous patch version."
+                  echo " " # verbose spacing
+                  
+                  HUGO_VERSION=$(decrement_version "$HUGO_VERSION")
+                  echo "version=$HUGO_VERSION" >> $GITHUB_ENV
+                  
+                  # Stop if no valid patch version remains
+                  if [[ "$HUGO_VERSION" == "v0.0.0" ]]; then
+                      echo "No valid versions found. Exiting."
+                      exit 1
+                  fi
+              fi
+          done
+
+          echo " " # verbose spacing
           echo "Checking Local Directory [$PWD]"
           ls # Display the contents of the current directory
+          
       - name: Install Hugo
         run: |
+          set -e # Exit on any command failure
           HUGO_VERSION="${{ env.version }}"
-                    
-          echo ""
+          FILE="hugo_extended_${HUGO_VERSION#v}_Linux-64bit.tar.gz"
+
           echo "Using Hugo version ${HUGO_VERSION}"
           echo "Extracting Hugo for Linux"
-          tar -zxf "hugo_extended_${HUGO_VERSION#v}_Linux-64bit.tar.gz"
-          chmod +x hugo
+
+          if tar -zxf "$FILE"; then
+              chmod +x hugo
+          else
+              echo "Failed to extract $FILE. Exiting."
+              exit 1
+          fi
           
-          echo "" # Verbose Spacing
           echo "Hugo installed for Linux"
           sudo mv hugo /usr/local/bin/
-          
+
       - name: Check Hugo version
         run: hugo version
