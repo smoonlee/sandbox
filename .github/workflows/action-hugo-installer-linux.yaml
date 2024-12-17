@@ -1,0 +1,60 @@
+name: Hugo Check and Install (Linux)
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+  # Uncomment the following lines if you want to add pull request triggers
+  # pull_request:
+  #   types: [opened, synchronize, reopened, closed]
+  #   branches:
+  #     - main
+
+jobs: 
+  check-and-install:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check Operating System
+        run: |
+          echo "Operating System: Linux"
+          cat /etc/os-release
+          
+      - name: Get latest Hugo version
+        id: get_latest_version
+        run: |
+          latest_version=$(curl -s https://api.github.com/repos/gohugoio/hugo/releases/latest | jq -r .tag_name)
+          echo "Latest Hugo version is $latest_version"
+          echo "version=$latest_version" >> $GITHUB_ENV
+          
+      - name: Download Hugo
+        run: |
+          HUGO_VERSION="${{ env.version }}"
+          DOWNLOAD_URL="https://github.com/gohugoio/hugo/releases/download/${HUGO_VERSION}/hugo_extended_${HUGO_VERSION#v}_Linux-64bit.tar.gz"
+          
+          echo "Downloading Hugo from $DOWNLOAD_URL"
+          curl -LO "$DOWNLOAD_URL"
+          
+          echo "" # Verbose Spacing
+          echo "Checking Local Directory [$PWD]"
+          ls # Display the contents of the current directory
+      - name: Install Hugo
+        run: |
+          HUGO_VERSION="${{ env.version }}"
+                    
+          echo ""
+          echo "Using Hugo version ${HUGO_VERSION}"
+          echo "Extracting Hugo for Linux"
+          tar -zxf "hugo_extended_${HUGO_VERSION#v}_Linux-64bit.tar.gz"
+          chmod +x hugo
+          
+          echo "" # Verbose Spacing
+          echo "Hugo installed for Linux"
+          sudo mv hugo /usr/local/bin/
+          
+      - name: Check Hugo version
+        run: hugo version
