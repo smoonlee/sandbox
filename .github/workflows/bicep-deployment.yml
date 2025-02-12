@@ -42,6 +42,7 @@ jobs:
         uses: azure/arm-deploy@v1
         with:
           subscriptionId: ${{ env.AZURE_SUBSCRIPTION_ID }}
+          scope: 'subscription'
           template: ./infra/main.bicep
           parameters: "./bicepparam/${{ env.environment }}.bicepparam"
           deploymentMode: Incremental
