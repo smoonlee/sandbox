@@ -18,6 +18,9 @@ on:
           - acc
           - prd
 
+permissions:
+  id-token: write
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
