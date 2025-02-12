@@ -6,12 +6,10 @@ on:
       subscriptionId:
         description: 'Azure Subscription ID'
         required: true
-        default: ''
-        
+
       environment:
         description: 'Deployment Environment'
         required: true
-        default: 'dev'
         type: choice
         options:
           - dev
@@ -25,8 +23,9 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     env:
-      AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-      AZURE_ENVIRONMENT: dev
+      AZURE_SUBSCRIPTION_ID: ${{ inputs.subscriptionId }}
+      AZURE_ENVIRONMENT: ${{ inputs.environment }}
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -36,8 +35,8 @@ jobs:
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-      
+          subscription-id: ${{ env.AZURE_SUBSCRIPTION_ID }}
+
       - name: Deploy Bicep Template
         uses: azure/arm-deploy@v1
         with:
@@ -45,5 +44,5 @@ jobs:
           scope: 'subscription'
           region: 'westeurope'
           template: ./infra/main.bicep
-          parameters: "./infra/bicepparam/${{ env.environment }}.bicepparam"
+          parameters: "./infra/bicepparam/${{ env.AZURE_ENVIRONMENT }}.bicepparam"
           deploymentMode: Incremental
