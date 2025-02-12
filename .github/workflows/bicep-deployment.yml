@@ -43,6 +43,6 @@ jobs:
         with:
           subscriptionId: ${{ env.AZURE_SUBSCRIPTION_ID }}
           template: ./infra/main.bicep
-          parameters: "@infra/bicepparam/${{ env.AZURE_ENVIRONMENT }}.bicepparam"
+          parameters: "@infra/bicepparam/${{ env.environment }}.bicepparam"
           location: westeurope
           deploymentMode: Incremental
