@@ -45,5 +45,5 @@ jobs:
           scope: 'subscription'
           region: 'westeurope'
           template: ./infra/main.bicep
-          parameters: "./bicepparam/${{ env.environment }}.bicepparam"
+          parameters: "./infra/bicepparam/${{ env.environment }}.bicepparam"
           deploymentMode: Incremental
