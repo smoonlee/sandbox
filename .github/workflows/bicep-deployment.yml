@@ -42,7 +42,6 @@ jobs:
         uses: azure/arm-deploy@v1
         with:
           subscriptionId: ${{ env.AZURE_SUBSCRIPTION_ID }}
-          resourceGroupName: myResourceGroup  # Modify as needed
           template: ./infra/main.bicep
           parameters: "@infra/bicepparam/${{ env.AZURE_ENVIRONMENT }}.bicepparam"
           location: westeurope
