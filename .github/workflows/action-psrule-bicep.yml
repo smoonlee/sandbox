@@ -29,13 +29,13 @@ jobs:
 
       - name: Install Azure Modules for PowerShell
         run: |
-          Install-Module -Repository 'PSGallery' -Name 'Az'
+          Install-Module -Repository 'PSGallery' -Name 'Az' -Force
         shell: pwsh
 
       - name: Install PSRule for Azure
         run: |
-          Install-Module -Repository 'PSGallery' -Name 'PSRule'
-          Install-Module -Repository 'PSGallery' -Name 'PSRule.Rules.Azure'
+          Install-Module -Repository 'PSGallery' -Name 'PSRule' -Force
+          Install-Module -Repository 'PSGallery' -Name 'PSRule.Rules.Azure' -Force
         shell: pwsh
 
       - name: Validate Bicep files
