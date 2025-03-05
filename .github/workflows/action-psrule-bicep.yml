@@ -20,30 +20,21 @@ jobs:
 
       - name: Install PowerShell
         run: | 
-          # Update the list of packages
-          sudo apt-get update
-          
-          # Install pre-requisite packages.
-          sudo apt-get install -y wget apt-transport-https software-properties-common
-          
-          # Get the version of Ubuntu
+          sudo apt-get update ; sudo apt-get install -y wget apt-transport-https software-properties-common
           source /etc/os-release
-          
-          # Download the Microsoft repository keys
           wget -q https://packages.microsoft.com/config/ubuntu/$VERSION_ID/packages-microsoft-prod.deb
-          
-          # Register the Microsoft repository keys - Delete the Microsoft repository keys file
           sudo dpkg -i packages-microsoft-prod.deb ; rm packages-microsoft-prod.deb
-
-          # Update the list of packages after we added packages.microsoft.com - Install PowerShell
-          sudo apt-get update && sudo apt-get install -y powershell
+          sudo apt-get update ; sudo apt-get install -y powershell
+        shell: bash
 
       - name: Install PSRule for Azure
         run: |
           Install-Module -Name PSRule -Scope CurrentUser -Force -AllowClobber
           Install-Module -Name PSRule.Rules.Azure -Scope CurrentUser -Force -AllowClobber
+        shell: pwsh
 
       - name: Validate Bicep files
         run: |
           Write-Output "Running PSRule validation on Bicep files..."
           Invoke-PSRule -Module 'PSRule.Rules.Azure' -Path . -InputPath '**/*.bicep' -Format Summary
+        shell: pwsh
