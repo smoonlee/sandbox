@@ -36,7 +36,8 @@ jobs:
           $modules = @('Az', 'PSRule', 'PSRule.Rules.Azure')
           foreach ($module in $modules) {
             Write-Output "Installing: $module"
-            Install-Module -Repository 'PSGallery' -Name $module | Import-Module
+            Install-Module -Repository 'PSGallery' -Name $module
+            Import-Module -Name $module
           }
 
           #
