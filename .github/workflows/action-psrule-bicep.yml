@@ -36,7 +36,7 @@ jobs:
           $modules = @('Az', 'PSRule', 'PSRule.Rules.Azure')
           foreach ($module in $modules) {
             Write-Output "Installing: $module"
-            Install-Module -Repository 'PSGallery' -Name $module -Force -AllowClobber
+            Install-Module -Repository 'PSGallery' -Name $module
           }
         shell: pwsh
 
