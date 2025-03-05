@@ -39,13 +39,10 @@ jobs:
             Install-Module -Repository 'PSGallery' -Name $module
             Import-Module -Name $module
           }
-
-          #
-          Get-Module
         shell: pwsh
 
       - name: Validate Bicep files
         run: |
           Write-Output "Running PSRule validation on Bicep files..."
-          Invoke-PSRule -Module 'PSRule.Rules.Azure' -Path . -Format Yaml
+          Invoke-PSRule -Module 'PSRule.Rules.Azure' -Path . -InputPath '**/*.bicep' -Format Yaml
         shell: pwsh
