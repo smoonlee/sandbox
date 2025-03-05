@@ -36,5 +36,5 @@ jobs:
       - name: Validate Bicep files
         run: |
           Write-Output "Running PSRule validation on Bicep files..."
-          Invoke-PSRule -Module 'PSRule.Rules.Azure' -Path . -InputPath '**/*.bicep' -Format Summary
+          Invoke-PSRule -Module 'PSRule.Rules.Azure' -Path . -InputPath '**/*.bicep' -Format Yaml
         shell: pwsh
