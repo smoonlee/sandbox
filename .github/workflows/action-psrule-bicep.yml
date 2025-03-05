@@ -39,6 +39,8 @@ jobs:
             Install-Module -Repository 'PSGallery' -Name $module
             Import-Module -Name $module
           }
+
+          Get-Module -ListAvailable Az.Accounts
         shell: pwsh
 
       - name: Validate Bicep files
