@@ -40,7 +40,14 @@ jobs:
           }
 
           #
-          Get-Module -ListAvailable
+          Get-Module
+
+          # 
+          Import-Module -Name 'PSRule'
+          Import-Module -Name PSRule.Rules.Azure'
+
+          #
+          Get-Module
         shell: pwsh
 
       - name: Validate Bicep files
