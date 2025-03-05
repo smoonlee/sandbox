@@ -1,0 +1,33 @@
+name: Validate Bicep with PSRule for Azure
+
+on:
+  push:
+    paths:
+      - "**.bicep"
+  pull_request:
+    paths:
+      - "**.bicep"
+
+jobs:
+  validate-bicep:
+    name: Run PSRule for Azure on Bicep
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up PowerShell
+        uses: Amadevus/pwsh-setup-action@v2
+        with:
+          version: '7.x'
+
+      - name: Install PSRule for Azure
+        run: |
+          Install-Module -Name PSRule -Scope CurrentUser -Force -AllowClobber
+          Install-Module -Name PSRule.Rules.Azure -Scope CurrentUser -Force -AllowClobber
+
+      - name: Validate Bicep files
+        run: |
+          Write-Output "Running PSRule validation on Bicep files..."
+          Invoke-PSRule -Module 'PSRule.Rules.Azure' -Path . -InputPath '**/*.bicep' -Format Summary
