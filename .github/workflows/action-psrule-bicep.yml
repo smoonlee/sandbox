@@ -27,15 +27,19 @@ jobs:
           sudo apt-get update ; sudo apt-get install -y powershell
         shell: bash
 
-      - name: Install Azure Modules for PowerShell
+      - name: Configure PowerShell
         run: |
-          Install-Module -Repository 'PSGallery' -Name 'Az' -Force
-        shell: pwsh
-
-      - name: Install PSRule for Azure
-        run: |
-          Install-Module -Repository 'PSGallery' -Name 'PSRule' -Force
-          Install-Module -Repository 'PSGallery' -Name 'PSRule.Rules.Azure' -Force
+          
+          # Configure PS Gallery 
+          Set-PSRepository -Name 'PSGallery' -InstallationPolicy 'Trusted'
+          
+          # Install PowerShell Modules
+          $modules= ('Az', 'PSRule', '{PSRule.Rules.Azure')
+          forEach ($module in $modukes) {
+            Write-Output "Installing: $module"
+            Install-Module -Repository PSGallery' -Name $module
+          }
+          
         shell: pwsh
 
       - name: Validate Bicep files
