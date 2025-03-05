@@ -38,6 +38,9 @@ jobs:
             Write-Output "Installing: $module"
             Install-Module -Repository 'PSGallery' -Name $module
           }
+
+          #
+          Get-Module -ListAvailable
         shell: pwsh
 
       - name: Validate Bicep files
