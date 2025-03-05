@@ -37,7 +37,7 @@ jobs:
           $modules= ('Az', 'PSRule', '{PSRule.Rules.Azure')
           forEach ($module in $modukes) {
             Write-Output "Installing: $module"
-            Install-Module -Repository PSGallery' -Name $module
+            Install-Module -Repository 'PSGallery' -Name $module
           }
           
         shell: pwsh
