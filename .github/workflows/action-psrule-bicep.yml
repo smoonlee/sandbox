@@ -20,30 +20,28 @@ jobs:
 
       - name: Install PowerShell
         run: | 
-          sudo apt-get update ; sudo apt-get install -y wget apt-transport-https software-properties-common
+          sudo apt-get update && sudo apt-get install -y wget apt-transport-https software-properties-common
           source /etc/os-release
           wget -q https://packages.microsoft.com/config/ubuntu/$VERSION_ID/packages-microsoft-prod.deb
-          sudo dpkg -i packages-microsoft-prod.deb ; rm packages-microsoft-prod.deb
-          sudo apt-get update ; sudo apt-get install -y powershell
+          sudo dpkg -i packages-microsoft-prod.deb && rm packages-microsoft-prod.deb
+          sudo apt-get update && sudo apt-get install -y powershell
         shell: bash
 
       - name: Configure PowerShell
         run: |
-          
-          # Configure PS Gallery 
+          # Configure PowerShell Gallery
           Set-PSRepository -Name 'PSGallery' -InstallationPolicy 'Trusted'
-          
+
           # Install PowerShell Modules
-          $modules= ('Az', 'PSRule', '{PSRule.Rules.Azure')
-          forEach ($module in $modukes) {
+          $modules = @('Az', 'PSRule', 'PSRule.Rules.Azure')
+          foreach ($module in $modules) {
             Write-Output "Installing: $module"
-            Install-Module -Repository 'PSGallery' -Name $module
+            Install-Module -Repository 'PSGallery' -Name $module -Force -AllowClobber
           }
-          
         shell: pwsh
 
       - name: Validate Bicep files
         run: |
           Write-Output "Running PSRule validation on Bicep files..."
-          Invoke-PSRule -Module 'PSRule.Rules.Azure' -Path . -InputPath '**/*.bicep' -Format Yaml
+          Invoke-PSRule -Module 'PSRule.Rules.Azure' -Path . -Format Yaml
         shell: pwsh
