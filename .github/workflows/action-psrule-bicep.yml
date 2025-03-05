@@ -17,11 +17,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up PowerShell
-        uses: Amadevus/pwsh-setup-action@v2
-        with:
-          version: '7.x'
-
       - name: Install PSRule for Azure
         run: |
           Install-Module -Name PSRule -Scope CurrentUser -Force -AllowClobber
