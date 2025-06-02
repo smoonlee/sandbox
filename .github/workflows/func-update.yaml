@@ -53,25 +53,25 @@ jobs:
             Set-Content -Path $profilePath -Value $updatedContent -Encoding UTF8
             Write-Output "Updated ValidateSet for Get-EolInfo in $profilePath"
 
-            # Check for changes
-            git diff --quiet $profilePath || {
-              # Configure git
-              git config user.name 'github-actions[bot]'
-              git config user.email 'github-actions[bot]@users.noreply.github.com'
+            # # Check for changes
+            # git diff --quiet $profilePath || {
+            #   # Configure git
+            #   git config user.name 'github-actions[bot]'
+            #   git config user.email 'github-actions[bot]@users.noreply.github.com'
 
-              # Create a new branch
-              $branchName = "update-eol-products-$(Get-Date -Format 'yyyyMMdd')"
-              git checkout -b $branchName
+            #   # Create a new branch
+            #   $branchName = "update-eol-products-$(Get-Date -Format 'yyyyMMdd')"
+            #   git checkout -b $branchName
 
-              # Commit changes
-              git add $profilePath
-              git commit -m "Update Get-EolInfo ValidateSet with latest endoflife.date products"
+            #   # Commit changes
+            #   git add $profilePath
+            #   git commit -m "Update Get-EolInfo ValidateSet with latest endoflife.date products"
 
-              # Push the branch
-              git push origin $branchName
+            #   # Push the branch
+            #   git push origin $branchName
 
-              # Create a pull request
-              $prBody = "Updated Get-EolInfo ValidateSet with $($products.Count) products from endoflife.date API on $(Get-Date -Format 'yyyy-MM-dd')."
-              gh pr create --title "Update Get-EolInfo with latest endoflife.date products" --body "$prBody" --base main --head $branchName
-              Write-Output "Created PR for branch $branchName"
-            }
+            #   # Create a pull request
+            #   $prBody = "Updated Get-EolInfo ValidateSet with $($products.Count) products from endoflife.date API on $(Get-Date -Format 'yyyy-MM-dd')."
+            #   gh pr create --title "Update Get-EolInfo with latest endoflife.date products" --body "$prBody" --base main --head $branchName
+            #   Write-Output "Created PR for branch $branchName"
+            # }
