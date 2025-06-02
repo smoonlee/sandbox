@@ -9,60 +9,55 @@ jobs:
   update-product-list:
     runs-on: ubuntu-latest
     steps:
-      # Checkout the repository
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Fetch product list and update Get-EolInfo function
       - name: Update Get-EolInfo ValidateSet
         shell: pwsh
         env:
           GITHUB_TOKEN: ${{ secrets.DEV_TOKEN }}
         run: |
-            # Fetch product list from endoflife.date API
-            Write-Output "Fetching products from endoflife.date API..."
-            $products = $(Invoke-RestMethod -Uri 'https://endoflife.date/api/v1/products/' -Method Get -TimeoutSec 10 -ErrorAction Stop).result
-            if ($products) {
-              Write-Output "Retrieved $($products.Count) products"
-              # Format and sort product names for ValidateSet
-              $productList = ($products | Select-Object -ExpandProperty name | Sort-Object) -join ","
-              Write-Output "Product list: $productList"
-            } else {
-              Write-Warning "No products returned from API."
-              exit 0 # Exit without failure to avoid unnecessary PRs
-            }
+          Write-Output "Fetching products from endoflife.date API..."
+          $products = Invoke-RestMethod -Uri 'https://endoflife.date/api/v1/products/' -Method Get -TimeoutSec 10 -ErrorAction Stop
+          if (-not $products) {
+            Write-Warning "No products returned from API."
+            exit 0
+          }
+          Write-Output "Retrieved $($products.Count) products"
+          $productList = ($products | Select-Object -ExpandProperty name | Sort-Object) -join ","
+          Write-Output "Product list: $productList"
 
-            # Read the profile script
-            $profilePath = 'Microsoft.PowerShell_profile.ps1'
-            if (-not (Test-Path $profilePath)) {
-              throw "Profile script not found at $profilePath"
-            }
-            $scriptContent = Get-Content -Path $profilePath -Raw -Encoding UTF8
+          $profilePath = 'Microsoft.PowerShell_profile.ps1'
+          if (-not (Test-Path $profilePath)) {
+            throw "Profile script not found at $profilePath"
+          }
+          $scriptContent = Get-Content -Path $profilePath -Raw -Encoding UTF8
 
-            # Update the ValidateSet for the Get-EolInfo function
-            $validateSetPattern = '\[ValidateSet\([^\)]*\)\]\s*\[string\]\$productName'
-            $newValidateSet = "[ValidateSet($productList)][string]`$productName"
-            $updatedContent = $scriptContent -replace $validateSetPattern, $newValidateSet
+          $validateSetPattern = '\[ValidateSet\([^\)]*\)\]\s*\[string\]\$productName'
+          $newValidateSet = "[ValidateSet($productList)][string]`$productName"
+          $updatedContent = $scriptContent -replace $validateSetPattern, $newValidateSet
 
-            if ($updatedContent -eq $scriptContent) {
-              Write-Output "No changes to ValidateSet needed."
-              exit 0 # No changes, so no PR
-            }
+          if ($updatedContent -eq $scriptContent) {
+            Write-Output "No changes to ValidateSet needed."
+            exit 0
+          }
 
-            # Write updated content
-            Set-Content -Path $profilePath -Value $updatedContent -Encoding UTF8
-            Write-Output `r "Updated ValidateSet for Get-EolInfo in $profilePath"
+          Set-Content -Path $profilePath -Value $updatedContent -Encoding UTF8
+          Write-Output "Updated ValidateSet for Get-EolInfo in $profilePath"
 
-      - name: Upload File
-        shell: bash
-        run: | 
+      - name: Commit and Create PR
+        shell: pwsh
+        env:
+          GITHUB_TOKEN: ${{ secrets.DEV_TOKEN }}
+        run: |
           git config user.name 'github-actions[bot]'
-              git config user.email 'github-actions[bot]@users.noreply.github.com'
-              branch_name='update-eol-products-$(date +%Y%m%d)'
-              git checkout -b \$branch_name || { echo 'Failed to create branch'; exit 1; }
-              git add '$profilePath' || { echo 'Failed to add file'; exit 1; }
-              git commit -m 'Update Get-EolInfo ValidateSet with latest endoflife.date products' || { echo 'Failed to commit'; exit 1; }
-              git push origin \$branch_name || { echo 'Failed to push branch'; exit 1; }
-              pr_body='Updated Get-EolInfo ValidateSet with $products.Count products from endoflife.date API on $(date +%Y-%m-%d).'
-              gh pr create --title 'Update Get-EolInfo with latest endoflife.date products' --body \"\$pr_body\" --base main --head \$branch_name || { echo 'Failed to create PR'; exit 1; }
-              echo 'Created PR for branch \$branch_name'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          $branchName = "update-eol-products-$(Get-Date -Format 'yyyyMMdd')"
+          git checkout -b $branchName
+          git add Microsoft.PowerShell_profile.ps1
+          git commit -m 'Update Get-EolInfo ValidateSet with latest endoflife.date products'
+          git push origin $branchName
+
+          $productCount = (Invoke-RestMethod -Uri 'https://endoflife.date/api/v1/products/' -Method Get).Count
+          $prBody = "Updated Get-EolInfo ValidateSet with $productCount products from endoflife.date API on $(Get-Date -Format 'yyyy-MM-dd')."
+          gh pr create --title 'Update Get-EolInfo with latest endoflife.date products' --body $prBody --base main --head $branchName
