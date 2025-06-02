@@ -18,7 +18,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.DEV_TOKEN }}
         run: |
           Write-Output "Fetching products from endoflife.date API..."
-          $products = Invoke-RestMethod -Uri 'https://endoflife.date/api/v1/products/' -Method Get -TimeoutSec 10 -ErrorAction Stop
+          $products = $(Invoke-RestMethod -Uri 'https://endoflife.date/api/v1/products/' -Method Get -TimeoutSec 10 -ErrorAction Stop).result
           if (-not $products) {
             Write-Warning "No products returned from API."
             exit 0
