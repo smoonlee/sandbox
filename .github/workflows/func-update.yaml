@@ -29,8 +29,8 @@ jobs:
           $productCount = $products.Count
           Write-Output "Retrieved $productCount products"
           echo "products-count=$productCount" >> $env:GITHUB_OUTPUT
-      
-          $productList = ($products | Select-Object -ExpandProperty name | Sort-Object) -join ","
+          
+          $productList = ($products | Select-Object -ExpandProperty name | Sort-Object | ForEach-Object { '"{0}"' -f $_ }) -join ","
           Write-Output "Product list: $productList"
       
           $profilePath = 'Microsoft.PowerShell_profile.ps1'
