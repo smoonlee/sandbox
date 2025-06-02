@@ -13,55 +13,83 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      # Check PowerShell version
+      - name: Check PowerShell version
+        run: |
+          pwsh --version
+        shell: bash
+
+      # Install GitHub CLI
+      - name: Install GitHub CLI
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gh
+
       # Fetch product list and update Get-EolInfo function
       - name: Update Get-EolInfo ValidateSet
         shell: pwsh
         env:
           GITHUB_TOKEN: ${{ secrets.DEV_TOKEN }}
         run: |
+          try {
             # Fetch product list from endoflife.date API
             Write-Output "Fetching products from endoflife.date API..."
-            $products = Invoke-RestMethod -Uri 'https://endoflife.date/api/v1/products/' -Method Get -TimeoutSec 10 -ErrorAction Stop
-            Write-Output "Retrieved $($products.Count) products"
-            
-            # Format and sort product list for ValidateSet
-            $productList = $products | Sort-Object | ForEach-Object { "`"$_`"" } | Join-String -Separator ', '
-            Write-Output $productList
-            
-            # # Read the profile script
-            # $profilePath = 'Microsoft.PowerShell_profile.ps1'
-            # if (-not (Test-Path $profilePath)) {
-            #   throw "Profile script not found at $profilePath"
-            # }
-            # $scriptContent = Get-Content -Path $profilePath -Raw -Encoding UTF8
+            $products = $(Invoke-RestMethod -Uri 'https://endoflife.date/api/v1/products/' -Method Get -TimeoutSec 10 -ErrorAction Stop).result
+            if ($products) {
+              Write-Output "Retrieved $($products.Count) products"
+              # Format and sort product names for ValidateSet
+              $productList = ($products | Select-Object -ExpandProperty name | Sort-Object) -join ","
+              Write-Output "Product list: $productList"
+            } else {
+              Write-Warning "No products returned from API."
+              exit 0 # Exit without failure to avoid unnecessary PRs
+            }
 
-            # # Define new ValidateSet content
-            # $newValidateSet = "[ValidateSet($productList)]"
+            # Read the profile script
+            $profilePath = 'Microsoft.PowerShell_profile.ps1'
+            if (-not (Test-Path $profilePath)) {
+              throw "Profile script not found at $profilePath"
+            }
+            $scriptContent = Get-Content -Path $profilePath -Raw -Encoding UTF8
 
-            # # Replace existing ValidateSet in Get-EolInfo
-            # $updatedContent = $scriptContent -replace '\[ValidateSet\([^\)]*\)\]', $newValidateSet
+            # Update the ValidateSet for the Get-EolInfo function
+            $validateSetPattern = '\[ValidateSet\([^\)]*\)\]\s*\[string\]\$productName'
+            $newValidateSet = "[ValidateSet($productList)][string]`$productName"
+            $updatedContent = $scriptContent -replace $validateSetPattern, $newValidateSet
 
-            # # Write updated content
-            # Set-Content -Path $profilePath -Value $updatedContent -Encoding UTF8
+            if ($updatedContent -eq $scriptContent) {
+              Write-Output "No changes to ValidateSet needed."
+              exit 0 # No changes, so no PR
+            }
 
-            # # Check for changes
-            # git diff --quiet $profilePath || {
-            #   # Configure git
-            #   git config user.name 'github-actions[bot]'
-            #   git config user.email 'github-actions[bot]@users.noreply.github.com'
+            # Write updated content
+            Set-Content -Path $profilePath -Value $updatedContent -Encoding UTF8
+            Write-Output "Updated ValidateSet for Get-EolInfo in $profilePath"
 
-            #   # Create a new branch
-            #   $branchName = "update-eol-products-$(Get-Date -Format 'yyyyMMdd')"
-            #   git checkout -b $branchName
+            # Check for changes
+            git diff --quiet $profilePath || {
+              # Configure git
+              git config user.name 'github-actions[bot]'
+              git config user.email 'github-actions[bot]@users.noreply.github.com'
 
-            #   # Commit changes
-            #   git add $profilePath
-            #   git commit -m "Update Get-EolInfo ValidateSet with latest endoflife.date products"
+              # Create a new branch
+              $branchName = "update-eol-products-$(Get-Date -Format 'yyyyMMdd')"
+              git checkout -b $branchName
 
-            #   # Push the branch
-            #   git push origin $branchName
+              # Commit changes
+              git add $profilePath
+              git commit -m "Update Get-EolInfo ValidateSet with latest endoflife.date products"
 
-            #   # Create a pull request with a single-line body
-            #   $prBody = "Updated Get-EolInfo ValidateSet with $($products.Count) products from endoflife.date API on $(Get-Date -Format 'yyyy-MM-dd')."
-            #   gh pr create --title "Update Get-EolInfo with latest endoflife.date products" --body "$prBody" --base main --head $branchName
-            # }
+              # Push the branch
+              git push origin $branchName
+
+              # Create a pull request
+              $prBody = "Updated Get-EolInfo ValidateSet with $($products.Count) products from endoflife.date API on $(Get-Date -Format 'yyyy-MM-dd')."
+              gh pr create --title "Update Get-EolInfo with latest endoflife.date products" --body "$prBody" --base main --head $branchName
+              Write-Output "Created PR for branch $branchName"
+            }
+          }
+          catch {
+            Write-Error "Failed to update Get-EolInfo: $_"
+            exit 1
+          }
