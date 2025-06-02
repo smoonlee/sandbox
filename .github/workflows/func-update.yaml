@@ -9,15 +9,16 @@ jobs:
   update-eol-products:
     runs-on: ubuntu-latest
     steps:
+    
+      # Check PowerShell version
+      - name: Check PowerShell version
+        run: |
+          pwsh --version
+        shell: bash
+      
       # Checkout the repository
       - name: Checkout repository
         uses: actions/checkout@v4
-
-      # Set up PowerShell
-      - name: Set up PowerShell
-        uses: actions/setup-powershell@v1
-        with:
-          powershell-version: '7.4' # Use a stable version compatible with your script
 
       # Fetch product list and update Get-EolInfo function
       - name: Update Get-EolInfo ValidateSet
