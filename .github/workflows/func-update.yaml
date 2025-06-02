@@ -23,7 +23,7 @@ jobs:
       - name: Update Get-EolInfo ValidateSet
         shell: pwsh
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.DEV_TOKEN }}
         run: |
           # Fetch product list from endoflife.date API
           $products = Invoke-RestMethod -Uri 'https://endoflife.date/api/v1/products/' -Method Get -ErrorAction Stop
