@@ -60,7 +60,7 @@ jobs:
             git commit -m 'Update Get-EolInfo ValidateSet with latest endoflife.date products'
             git push origin $branchName
       
-            $productCount = (Invoke-RestMethod -Uri 'https://endoflife.date/api/v1/products/' -Method Get).Count
+            $productCount = $products.count
             $prBody = "Updated Get-EolInfo ValidateSet with $productCount products from endoflife.date API on $(Get-Date -Format 'yyyy-MM-dd')."
             gh pr create --title 'Update Get-EolInfo with latest endoflife.date products' --body $prBody --base main --head $branchName
           } else {
