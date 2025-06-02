@@ -51,7 +51,4 @@ jobs:
 
             # Write updated content
             Set-Content -Path $profilePath -Value $updatedContent -Encoding UTF8
-            Write-Output "Updated ValidateSet for Get-EolInfo in $profilePath"
-
-            # Check for changes
-            git diff --quiet $profilePath 
+            Write-Output `r "Updated ValidateSet for Get-EolInfo in $profilePath"
