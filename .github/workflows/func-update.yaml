@@ -13,23 +13,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Check PowerShell version
-      - name: Check PowerShell version
-        run: |
-          pwsh --version
-        shell: bash
-
-      # Install GitHub CLI early to ensure availability
-      - name: Install GitHub CLI
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y gh
-
       # Fetch product list and update Get-EolInfo function
       - name: Update Get-EolInfo ValidateSet
         shell: pwsh
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.DEV_TOKEN }}
         run: |
           try {
             # Fetch product list from endoflife.date API
@@ -73,11 +61,8 @@ jobs:
               # Push the branch
               git push origin $branchName
 
-              # Create a pull request using a here-string for clarity
-              $prBody = @"
-              This PR updates the ValidateSet in Get-EolInfo with the latest products from the endoflife.date API.
-              Retrieved $($products.Count) products on $(Get-Date -Format 'yyyy-MM-dd').
-              "@
+              # Create a pull request with a single-line body
+              $prBody = "Updated Get-EolInfo ValidateSet with $($products.Count) products from endoflife.date API on $(Get-Date -Format 'yyyy-MM-dd')."
               gh pr create --title "Update Get-EolInfo with latest endoflife.date products" --body "$prBody" --base main --head $branchName
             }
           }
