@@ -19,7 +19,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.DEV_TOKEN }}
         run: |
-          try {
             # Fetch product list from endoflife.date API
             Write-Output "Fetching products from endoflife.date API..."
             $products = Invoke-RestMethod -Uri 'https://endoflife.date/api/v1/products/' -Method Get -TimeoutSec 10 -ErrorAction Stop
@@ -65,8 +64,3 @@ jobs:
               $prBody = "Updated Get-EolInfo ValidateSet with $($products.Count) products from endoflife.date API on $(Get-Date -Format 'yyyy-MM-dd')."
               gh pr create --title "Update Get-EolInfo with latest endoflife.date products" --body "$prBody" --base main --head $branchName
             }
-          }
-          catch {
-            Write-Error "Failed to update Get-EolInfo: $_"
-            exit 1
-          }
