@@ -1,0 +1,74 @@
+name: Update Get-EolInfo Product List
+
+on:
+  schedule:
+    - cron: '0 0 1 * *' # Runs at 00:00 on the 1st of each month
+  workflow_dispatch: # Allows manual triggering from the Actions tab
+
+jobs:
+  update-eol-products:
+    runs-on: ubuntu-latest
+    steps:
+      # Checkout the repository
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Set up PowerShell
+      - name: Set up PowerShell
+        uses: actions/setup-powershell@v1
+        with:
+          powershell-version: '7.4' # Use a stable version compatible with your script
+
+      # Fetch product list and update Get-EolInfo function
+      - name: Update Get-EolInfo ValidateSet
+        shell: pwsh
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Fetch product list from endoflife.date API
+          $products = Invoke-RestMethod -Uri 'https://endoflife.date/api/v1/products/' -Method Get -ErrorAction Stop
+          $productList = $products | Sort-Object | ForEach-Object { "`"$_`"" } | Join-String -Separator ', '
+
+          # Read the profile script
+          $profilePath = 'Microsoft.PowerShell_profile.ps1'
+          $scriptContent = Get-Content -Path $profilePath -Raw
+
+          # Define the new ValidateSet content
+          $newValidateSet = "[ValidateSet($productList)]"
+
+          # Replace the existing ValidateSet
+          $updatedContent = $scriptContent -replace '\[ValidateSet\([^)]+\)\]', $newValidateSet
+
+          # Write the updated content back to the file
+          Set-Content -Path $profilePath -Value $updatedContent -Encoding UTF8
+
+          # Check if there are changes
+          git diff --quiet $profilePath || {
+            # Configure git
+            git config user.name 'github-actions[bot]'
+            git config user.email 'github-actions[bot]@users.noreply.github.com'
+
+            # Create a new branch
+            $branchName = "update-eol-products-$(Get-Date -Format 'yyyyMMdd')"
+            git checkout -b $branchName
+
+            # Commit changes
+            git add $profilePath
+            git commit -m 'Update Get-EolInfo ValidateSet with latest endoflife.date products'
+
+            # Push the branch
+            git push origin $branchName
+
+            # Create a pull request using the GitHub CLI
+            gh pr create --title "Update Get-EolInfo with latest endoflife.date products" \
+                         --body "This PR updates the ValidateSet in Get-EolInfo with the latest products from endoflife.date API." \
+                         --base main \
+                         --head $branchName
+          }
+
+      # Install GitHub CLI if needed for PR creation
+      - name: Install GitHub CLI
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gh
+        if: steps.update-eol-products.outputs.changes == 'true'
