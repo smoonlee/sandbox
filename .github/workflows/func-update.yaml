@@ -75,9 +75,9 @@ jobs:
 
               # Create a pull request using a here-string for clarity
               $prBody = @"
-This PR updates the ValidateSet in Get-EolInfo with the latest products from the endoflife.date API.
-Retrieved $($products.Count) products on $(Get-Date -Format 'yyyy-MM-dd').
-"@
+              This PR updates the ValidateSet in Get-EolInfo with the latest products from the endoflife.date API.
+              Retrieved $($products.Count) products on $(Get-Date -Format 'yyyy-MM-dd').
+              "@
               gh pr create --title "Update Get-EolInfo with latest endoflife.date products" --body "$prBody" --base main --head $branchName
             }
           }
