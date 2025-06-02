@@ -26,41 +26,42 @@ jobs:
             
             # Format and sort product list for ValidateSet
             $productList = $products | Sort-Object | ForEach-Object { "`"$_`"" } | Join-String -Separator ', '
+            Write-Output $productList
+            
+            # # Read the profile script
+            # $profilePath = 'Microsoft.PowerShell_profile.ps1'
+            # if (-not (Test-Path $profilePath)) {
+            #   throw "Profile script not found at $profilePath"
+            # }
+            # $scriptContent = Get-Content -Path $profilePath -Raw -Encoding UTF8
 
-            # Read the profile script
-            $profilePath = 'Microsoft.PowerShell_profile.ps1'
-            if (-not (Test-Path $profilePath)) {
-              throw "Profile script not found at $profilePath"
-            }
-            $scriptContent = Get-Content -Path $profilePath -Raw -Encoding UTF8
+            # # Define new ValidateSet content
+            # $newValidateSet = "[ValidateSet($productList)]"
 
-            # Define new ValidateSet content
-            $newValidateSet = "[ValidateSet($productList)]"
+            # # Replace existing ValidateSet in Get-EolInfo
+            # $updatedContent = $scriptContent -replace '\[ValidateSet\([^\)]*\)\]', $newValidateSet
 
-            # Replace existing ValidateSet in Get-EolInfo
-            $updatedContent = $scriptContent -replace '\[ValidateSet\([^\)]*\)\]', $newValidateSet
+            # # Write updated content
+            # Set-Content -Path $profilePath -Value $updatedContent -Encoding UTF8
 
-            # Write updated content
-            Set-Content -Path $profilePath -Value $updatedContent -Encoding UTF8
+            # # Check for changes
+            # git diff --quiet $profilePath || {
+            #   # Configure git
+            #   git config user.name 'github-actions[bot]'
+            #   git config user.email 'github-actions[bot]@users.noreply.github.com'
 
-            # Check for changes
-            git diff --quiet $profilePath || {
-              # Configure git
-              git config user.name 'github-actions[bot]'
-              git config user.email 'github-actions[bot]@users.noreply.github.com'
+            #   # Create a new branch
+            #   $branchName = "update-eol-products-$(Get-Date -Format 'yyyyMMdd')"
+            #   git checkout -b $branchName
 
-              # Create a new branch
-              $branchName = "update-eol-products-$(Get-Date -Format 'yyyyMMdd')"
-              git checkout -b $branchName
+            #   # Commit changes
+            #   git add $profilePath
+            #   git commit -m "Update Get-EolInfo ValidateSet with latest endoflife.date products"
 
-              # Commit changes
-              git add $profilePath
-              git commit -m "Update Get-EolInfo ValidateSet with latest endoflife.date products"
+            #   # Push the branch
+            #   git push origin $branchName
 
-              # Push the branch
-              git push origin $branchName
-
-              # Create a pull request with a single-line body
-              $prBody = "Updated Get-EolInfo ValidateSet with $($products.Count) products from endoflife.date API on $(Get-Date -Format 'yyyy-MM-dd')."
-              gh pr create --title "Update Get-EolInfo with latest endoflife.date products" --body "$prBody" --base main --head $branchName
-            }
+            #   # Create a pull request with a single-line body
+            #   $prBody = "Updated Get-EolInfo ValidateSet with $($products.Count) products from endoflife.date API on $(Get-Date -Format 'yyyy-MM-dd')."
+            #   gh pr create --title "Update Get-EolInfo with latest endoflife.date products" --body "$prBody" --base main --head $branchName
+            # }
