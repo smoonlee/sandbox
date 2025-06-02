@@ -54,10 +54,15 @@ jobs:
           git config user.email 'github-actions[bot]@users.noreply.github.com'
           $branchName = "update-eol-products-$(Get-Date -Format 'yyyyMMdd')"
           git checkout -b $branchName
+      
           git add Microsoft.PowerShell_profile.ps1
-          git commit -m 'Update Get-EolInfo ValidateSet with latest endoflife.date products'
-          git push origin $branchName
-
-          $productCount = (Invoke-RestMethod -Uri 'https://endoflife.date/api/v1/products/' -Method Get).Count
-          $prBody = "Updated Get-EolInfo ValidateSet with $productCount products from endoflife.date API on $(Get-Date -Format 'yyyy-MM-dd')."
-          gh pr create --title 'Update Get-EolInfo with latest endoflife.date products' --body $prBody --base main --head $branchName
+          if (-not (git diff --cached --quiet)) {
+            git commit -m 'Update Get-EolInfo ValidateSet with latest endoflife.date products'
+            git push origin $branchName
+      
+            $productCount = (Invoke-RestMethod -Uri 'https://endoflife.date/api/v1/products/' -Method Get).Count
+            $prBody = "Updated Get-EolInfo ValidateSet with $productCount products from endoflife.date API on $(Get-Date -Format 'yyyy-MM-dd')."
+            gh pr create --title 'Update Get-EolInfo with latest endoflife.date products' --body $prBody --base main --head $branchName
+          } else {
+            Write-Output "No changes detected. Skipping commit and PR."
+          }
