@@ -53,4 +53,16 @@ jobs:
             Set-Content -Path $profilePath -Value $updatedContent -Encoding UTF8
             Write-Output `r "Updated ValidateSet for Get-EolInfo in $profilePath"
 
-            git diff $proofilePath
+      - name: Upload File
+        shell: bash
+        run: | 
+          git config user.name 'github-actions[bot]'
+              git config user.email 'github-actions[bot]@users.noreply.github.com'
+              branch_name='update-eol-products-$(date +%Y%m%d)'
+              git checkout -b \$branch_name || { echo 'Failed to create branch'; exit 1; }
+              git add '$profilePath' || { echo 'Failed to add file'; exit 1; }
+              git commit -m 'Update Get-EolInfo ValidateSet with latest endoflife.date products' || { echo 'Failed to commit'; exit 1; }
+              git push origin \$branch_name || { echo 'Failed to push branch'; exit 1; }
+              pr_body='Updated Get-EolInfo ValidateSet with $products.Count products from endoflife.date API on $(date +%Y-%m-%d).'
+              gh pr create --title 'Update Get-EolInfo with latest endoflife.date products' --body \"\$pr_body\" --base main --head \$branch_name || { echo 'Failed to create PR'; exit 1; }
+              echo 'Created PR for branch \$branch_name'
