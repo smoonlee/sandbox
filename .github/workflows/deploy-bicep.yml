@@ -42,8 +42,7 @@ jobs:
             environmentType='dev'
             deployedBy='labadmin@builtwithcaffeine.cloud'
 
-            # Generate unique deployment name
-            guid=$(uuidgen)
+            guid="github"
 
             # Deploy the Bicep file at subscription scope
             az deployment sub create \
