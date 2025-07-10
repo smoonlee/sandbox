@@ -25,33 +25,35 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-      - name: 'Install UUID'
+      - name: Install UUID tool
         run: |
-            # Install UUID tool
-            sudo apt update && sudo apt install -y uuid
+          sudo apt-get update
+          sudo apt-get install -y uuid-runtime
         shell: bash
 
       - name: Deploy Bicep Template
         uses: azure/cli@v2
         with:
           inlineScript: |
-
-            # Install Azure Bicep
+            # Install Azure Bicep CLI (if not already installed)
             az bicep install
-            
-            # Check Azure Account
+
+            # Check Azure Account context
             az account show
 
+            # Define parameters
             location='westeurope'
             locationShortCode='weu'
             customerName='bwc'
             environmentType='dev'
             deployedBy='labadmin@builtwithcaffeine.cloud'
 
+            # Generate unique deployment name
             guid=$(uuid)
 
+            # Deploy the Bicep file at subscription scope
             az deployment sub create \
-              --name iac-$guid \
+              --name "iac-$guid" \
               --location "$location" \
               --template-file main.bicep \
               --parameters \
@@ -60,3 +62,4 @@ jobs:
                 customerName="$customerName" \
                 environmentType="$environmentType" \
                 deployedBy="$deployedBy"
+        shell: bash
