@@ -28,7 +28,7 @@ jobs:
       - name: 'Install UUID'
         run: |
             # Install UUID tool
-            apt update && apt install -y uuid-runtime
+            sudo apt update && sudo apt install -y uuid-runtime
         shell: bash
 
       - name: Deploy Bicep Template
