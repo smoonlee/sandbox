@@ -34,7 +34,7 @@ jobs:
       - name: Deploy Bicep Template
         uses: azure/cli@v2
         with:
-          scriptType: bash
+          scriptType: 'bash'
           inlineScript: |
             # Install Azure Bicep CLI (if not already installed)
             az bicep install
