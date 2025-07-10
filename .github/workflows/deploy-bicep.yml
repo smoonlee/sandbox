@@ -55,4 +55,4 @@ jobs:
                 customerName="$customerName" \
                 environmentType="$environmentType" \
                 deployedBy="$deployedBy" \
-                superSecurePassword='${{ secret.SUPERSECUREPASSWORD }}'
+                superSecurePassword='${{ secrets.SUPERSECUREPASSWORD }}'
