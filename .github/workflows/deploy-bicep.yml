@@ -27,9 +27,14 @@ jobs:
         uses: azure/cli@v2
         with:
           inlineScript: |
-          
+
+            # Install UUID tool
+            apt update && apt install -y uuid-runtime
+
+            # Install Azure Bicep
             az bicep install
             
+            # Check Azure Account
             az account show
 
             location='westeurope'
@@ -37,8 +42,11 @@ jobs:
             customerName='bwc'
             environmentType='dev'
             deployedBy='labadmin@builtwithcaffeine.cloud'
-          
+
+            guid=$(uuid)
+
             az deployment sub create \
+              --name iac-$guid \
               --location "$location" \
               --template-file main.bicep \
               --parameters \
@@ -46,4 +54,4 @@ jobs:
                 locationShortCode="$locationShortCode" \
                 customerName="$customerName" \
                 environmentType="$environmentType" \
-                deployedBy="deployedBy"              
+                deployedBy="$deployedBy"
