@@ -25,12 +25,6 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-      - name: Install UUID tool
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y uuid-runtime
-        shell: bash
-
       - name: Deploy Bicep Template
         uses: azure/cli@v2
         with:
