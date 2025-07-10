@@ -25,13 +25,16 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
+      - name: 'Install UUID'
+        run: |
+            # Install UUID tool
+            apt update && apt install -y uuid-runtime
+        shell: bash
+
       - name: Deploy Bicep Template
         uses: azure/cli@v2
         with:
           inlineScript: |
-
-            # Install UUID tool
-            apt update && apt install -y uuid-runtime
 
             # Install Azure Bicep
             az bicep install
