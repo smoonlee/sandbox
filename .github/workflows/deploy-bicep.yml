@@ -27,9 +27,23 @@ jobs:
         uses: azure/cli@v2
         with:
           inlineScript: |
+          
             az bicep install
+            
             az account show
+
+            location='westeurope'
+            locationShortCode='weu'
+            customerName='bwc'
+            environmentType='dev'
+            deployedBy='labadmin@builtwithcaffeine.cloud'
+          
             az deployment sub create \
-              --location westeurope \
+              --location "$location" \
               --template-file main.bicep \
-              --parameters environmentType=dev location=westeurope
+              --parameters \
+                location="$location" \
+                locationShortCode="$locationShortCode" \
+                customerName="$customerName" \
+                environmentType="$environmentType" \
+                deployedBy="deployedBy"              
