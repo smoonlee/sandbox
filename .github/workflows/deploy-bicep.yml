@@ -54,5 +54,5 @@ jobs:
                 locationShortCode="$locationShortCode" \
                 customerName="$customerName" \
                 environmentType="$environmentType" \
-                deployedBy="$deployedBy"
+                deployedBy="$deployedBy" \
                 SuperSecurePassword=${{ vars.SUPERSECUREPASSWORD }}
