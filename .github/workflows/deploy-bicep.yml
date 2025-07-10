@@ -34,6 +34,7 @@ jobs:
       - name: Deploy Bicep Template
         uses: azure/cli@v2
         with:
+          scriptType: bash
           inlineScript: |
             # Install Azure Bicep CLI (if not already installed)
             az bicep install
@@ -62,4 +63,3 @@ jobs:
                 customerName="$customerName" \
                 environmentType="$environmentType" \
                 deployedBy="$deployedBy"
-        shell: bash
