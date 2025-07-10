@@ -1,0 +1,35 @@
+name: Deploy Bicep to Azure
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Log in to Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Deploy Bicep Template
+        uses: azure/cli@v2
+        with:
+          inlineScript: |
+            az bicep install
+            az account show
+            az deployment sub create \
+              --location westeurope \
+              --template-file main.bicep \
+              --parameters environmentType=dev location=westeurope
