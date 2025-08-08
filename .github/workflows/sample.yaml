@@ -6,7 +6,7 @@ on:
       environment:
         description: "Target deployment environment"
         required: true
-        default: "dev"
+        default: "OVPNSRV01"
         type: choice
         options:
           - OVPNSRV01
@@ -29,3 +29,13 @@ jobs:
           echo "Branch: ${{ github.ref_name }}"
           echo "Selected environment: ${{ inputs.environment || 'N/A' }}"
 
+      - name: Authenticate Azure CLI
+        run: |
+          echo "Azure Authentication Step"
+          sleep 2
+          
+      - name: "[IaC] - ${{ inputs.environment }} - Deployment"
+        run: |
+          echo "Deploying IaC to ${{ inputs.environment }}"
+          sleep 2
+          
