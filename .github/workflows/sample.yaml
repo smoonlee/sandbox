@@ -12,6 +12,14 @@ on:
           - dev
           - test
           - prod
+      product:
+        description: "Target deployment environment"
+        required: true
+        type: choice
+        options:
+          - OVPNSRV01
+          - OVPNSRV02
+          - OVPNSRV03     
   push:              # Automatic trigger on code push
     branches:
       - main
