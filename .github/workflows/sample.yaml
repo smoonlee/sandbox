@@ -32,10 +32,10 @@ jobs:
       - name: Authenticate Azure CLI
         run: |
           echo "Azure Authentication Step"
-          sleep 2
+          sleep 5
           
       - name: "[IaC] - ${{ inputs.environment }} - Deployment"
         run: |
           echo "Deploying IaC to ${{ inputs.environment }}"
-          sleep 2
+          sleep 5
           
