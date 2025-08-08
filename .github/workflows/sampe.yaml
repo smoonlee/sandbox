@@ -1,0 +1,30 @@
+name: "Sample Workflow Trigger"
+
+on:
+  workflow_dispatch: # Manual trigger from GitHub UI
+    inputs:
+      environment:
+        description: "Target deployment environment"
+        required: true
+        default: "dev"
+        type: choice
+        options:
+          - dev
+          - test
+          - prod
+  push:              # Automatic trigger on code push
+    branches:
+      - main
+
+jobs:
+  example_job:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Display trigger info
+        run: |
+          echo "Workflow triggered by: ${{ github.event_name }}"
+          echo "Branch: ${{ github.ref_name }}"
+          echo "Selected environment: ${{ inputs.environment || 'N/A' }}"
