@@ -9,18 +9,10 @@ on:
         default: "dev"
         type: choice
         options:
-          - dev
-          - test
-          - prod
-      product:
-        description: "Target deployment environment"
-        required: true
-        type: choice
-        options:
           - OVPNSRV01
           - OVPNSRV02
           - OVPNSRV03     
-  push:              # Automatic trigger on code push
+  push:              
     branches:
       - main
 
@@ -36,3 +28,4 @@ jobs:
           echo "Workflow triggered by: ${{ github.event_name }}"
           echo "Branch: ${{ github.ref_name }}"
           echo "Selected environment: ${{ inputs.environment || 'N/A' }}"
+
